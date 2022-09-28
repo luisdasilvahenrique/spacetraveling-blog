@@ -28,13 +28,21 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home() {
+export default function Home({postsPagination}: HomeProps) {
   return (
     <>
       <main className={commonStyles.container}>
         <Header />
 
-        <div className={styles.posts}>
+        <div>
+          {postsPagination.results.map(post => {
+            <div>
+              <p>{post.first_publication_date}</p>
+            </div>
+          })}
+        </div>
+
+        {/* <div className={styles.posts}>
           <Link href={'/'}>
             <a className={styles.post}>
               <strong>Como utilizar Hooks</strong>
@@ -69,7 +77,7 @@ export default function Home() {
             </a>
           </Link>
           <button type='button'> Carregar mais posts </button>
-        </div>
+        </div> */}
 
         
       </main>
@@ -77,9 +85,24 @@ export default function Home() {
   )
 }
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient({});
-//   // const postsResponse = await prismic.getByType(TODO);
+export const getStaticProps = async () => {
+  const prismic = getPrismicClient({});
+  const postsResponse = await prismic.getByType('posts', {
+    pageSize: 100,
+    orderings: {
+      field: 'last_publication_date',
+      direction: 'desc',
+    }
+  });
 
-//   // TODO
-// };
+  const postsPagination = {
+    next_page: postsResponse.next_page,
+    results: postsResponse.results,
+  }
+
+  return{
+    props: {
+      postsPagination
+    }
+  }
+};
