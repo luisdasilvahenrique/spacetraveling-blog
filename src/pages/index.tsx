@@ -8,6 +8,8 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { format } from 'date-fns';
+import ptBr from 'date-fns/locale/pt-BR';
 
 interface Post {
   uid?: string;
@@ -29,13 +31,23 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
+  const formatedPosts = postsPagination.results.map(post => ({
+    ...post,
+    first_publication_date: format(
+      new Date(post.first_publication_date),
+      'dd MMM yyyy',
+      {
+        locale: ptBr
+      }
+      )
+  }))
+
   return (
-    <>
       <main className={commonStyles.container}>
         <Header />
 
-        <div>
-          {postsPagination.results.map(post =>( 
+        <div className={styles.posts}>
+          {formatedPosts.map(post =>( 
             <Link href={`/post/${post.uid}`}>
             <a className={styles.post}>
               <strong>{post.data.title}</strong>
@@ -56,7 +68,6 @@ export default function Home({ postsPagination }: HomeProps) {
         </div>
           {/* <button type='button'> Carregar mais posts </button> */}
       </main>
-      </>
   )
 }
 
