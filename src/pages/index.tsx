@@ -28,64 +28,39 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home({postsPagination}: HomeProps) {
+export default function Home({ postsPagination }: HomeProps) {
   return (
     <>
       <main className={commonStyles.container}>
         <Header />
 
         <div>
-          {postsPagination.results.map(post => {
-            <div>
-              <p>{post.first_publication_date}</p>
-            </div>
-          })}
+          {postsPagination.results.map(post =>( 
+            <Link href={`/post/${post.uid}`}>
+            <a className={styles.post}>
+              <strong>{post.data.title}</strong>
+              <p>{post.data.subtitle}</p>
+              <ul>
+                <li>
+                  <FiCalendar />
+                  <time>{post.first_publication_date}</time>
+                </li>
+                <li>
+                  <FiUser />
+                  <time>{post.data.author}</time>
+                </li>
+              </ul>
+            </a>
+          </Link>
+          ))}
         </div>
-
-        {/* <div className={styles.posts}>
-          <Link href={'/'}>
-            <a className={styles.post}>
-              <strong>Como utilizar Hooks</strong>
-              <p>Pensando em sincronização em vez de ciclos de vida.</p>
-              <ul>
-                <li>
-                  <FiCalendar />
-                  <time>15 Mar 2021</time>
-                </li>
-                <li>
-                  <FiUser />
-                  <time>15 Mar 2021</time>
-                </li>
-              </ul>
-            </a>
-          </Link>
-
-          <Link href={'/'}>
-            <a className={styles.post}>
-              <strong>Como utilizar Hooks</strong>
-              <p>Pensando em sincronização em vez de ciclos de vida.</p>
-              <ul>
-                <li>
-                  <FiCalendar />
-                  <time>15 Mar 2021</time>
-                </li>
-                <li>
-                  <FiUser />
-                  <time>15 Mar 2021</time>
-                </li>
-              </ul>
-            </a>
-          </Link>
-          <button type='button'> Carregar mais posts </button>
-        </div> */}
-
-        
+          {/* <button type='button'> Carregar mais posts </button> */}
       </main>
-    </>
+      </>
   )
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps =  async () => {
   const prismic = getPrismicClient({});
   const postsResponse = await prismic.getByType('posts', {
     pageSize: 100,
@@ -101,7 +76,7 @@ export const getStaticProps = async () => {
   }
 
   return{
-    props: {
+   props: {
       postsPagination
     }
   }
