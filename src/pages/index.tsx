@@ -10,6 +10,7 @@ import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import { format } from 'date-fns';
 import ptBr from 'date-fns/locale/pt-BR';
+import { useState } from 'react';
 
 interface Post {
   uid?: string;
@@ -39,16 +40,43 @@ export default function Home({ postsPagination }: HomeProps) {
       {
         locale: ptBr
       }
-      )
+    )
   }))
+  const [posts, setPosts] = useState<Post[]>(formatedPosts)
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+
+  async function handleNextPage(): Promise<void> {
+    if (nextPage == null) return;
+
+    const postsResult = await fetch(nextPage)
+      .then(response => response.json()
+      );
+
+    setNextPage(postsResult.next_page);
+
+    const newPost = postsResult.results.map((post: Post) => {
+      return {
+        ...post,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          'dd MMM yyyy',
+          {
+            locale: ptBr
+          }
+        ),
+      };
+    });
+
+    setPosts([...posts, ...newPost])
+  }
 
   return (
-      <main className={commonStyles.container}>
-        <Header />
+    <main className={commonStyles.container}>
+      <Header />
 
-        <div className={styles.posts}>
-          {formatedPosts.map(post =>( 
-            <Link href={`/post/${post.uid}`}>
+      <div className={styles.posts}>
+        {posts.map(post => (
+          <Link href={`/post/${post.uid}`}>
             <a className={styles.post}>
               <strong>{post.data.title}</strong>
               <p>{post.data.subtitle}</p>
@@ -64,17 +92,24 @@ export default function Home({ postsPagination }: HomeProps) {
               </ul>
             </a>
           </Link>
-          ))}
-        </div>
-          {/* <button type='button'> Carregar mais posts </button> */}
-      </main>
+        ))}
+
+      {nextPage && (
+        <button type="button" onClick={handleNextPage}>
+          Carregar mais posts
+        </button>
+      )
+      }
+      </div>
+      
+    </main>
   )
 }
 
-export const getStaticProps: GetStaticProps =  async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
   const postsResponse = await prismic.getByType('posts', {
-    pageSize: 100,
+    pageSize: 2,
     orderings: {
       field: 'last_publication_date',
       direction: 'desc',
@@ -86,8 +121,8 @@ export const getStaticProps: GetStaticProps =  async () => {
     results: postsResponse.results,
   }
 
-  return{
-   props: {
+  return {
+    props: {
       postsPagination
     }
   }
