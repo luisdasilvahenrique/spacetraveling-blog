@@ -11,6 +11,7 @@ import styles from './home.module.scss';
 import { format } from 'date-fns';
 import ptBr from 'date-fns/locale/pt-BR';
 import { useState } from 'react';
+import { Head } from 'next/document';
 
 interface Post {
   uid?: string;
@@ -71,6 +72,10 @@ export default function Home({ postsPagination }: HomeProps) {
   }
 
   return (
+    <>
+    <Head>
+      Home | spacetraveling
+    </Head>
     <main className={commonStyles.container}>
       <Header />
 
@@ -103,6 +108,7 @@ export default function Home({ postsPagination }: HomeProps) {
       </div>
       
     </main>
+    </>
   )
 }
 
