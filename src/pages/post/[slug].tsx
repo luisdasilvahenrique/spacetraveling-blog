@@ -39,6 +39,15 @@ export default function Post({ post }: PostProps) {
     return <h1>Carregando...</h1>
   }
 
+  const totalWords = post.data.content.reduce((total, contentItem)=>{
+    const headingTime = contentItem.heading.split(/\s+/).length;
+    const wordTime = RichText.asText(contentItem.body).split(/\s+/).length;
+
+    return total + headingTime + wordTime;
+  }, 0)
+
+  const readTime = Math.ceil(totalWords / 200)
+
   const formatedDate = format(new Date(post.first_publication_date),
     'dd MMM yyyy',
     {locale: pt}
@@ -65,7 +74,7 @@ export default function Post({ post }: PostProps) {
             </li>
             <li>
               <FiClock/>
-              1 min
+              {readTime} min
             </li>
           </ul>
         </div>
