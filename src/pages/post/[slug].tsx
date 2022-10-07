@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import { RichText } from 'prismic-dom';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Header from '../../components/Header';
 
@@ -68,6 +69,21 @@ export default function Post({ post }: PostProps) {
             </li>
           </ul>
         </div>
+
+      {post.data.content.map(content => {
+        return(
+          <article key={content.heading}>
+            <h2>{content.heading}</h2>
+            <div 
+            className={styles.postContent}
+            dangerouslySetInnerHTML={{
+              __html: RichText.asHtml(content.body),
+            }}>
+            </div>
+          </article>
+        )
+      })}
+
       </div>
     </main>
     </>
